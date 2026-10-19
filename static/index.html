@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XENON · Palace & Residences — Hotel & Lodge POS</title>
+  
+  <!-- Google Fonts: Pinyon Script & Italianno (Lemon and Olive style) + Bodoni Moda & Marcellus (The Leela style) + Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,600&family=Italianno&family=Marcellus&family=Pinyon+Script&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ================= 1. DEMO LOGIN SCREEN ================= -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-backdrop-img" style="background-image: url('/static/images/palace.jpg');"></div>
+    <div class="login-overlay"></div>
+
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-brand-header">
+          <span class="script-monogram">Xenon</span>
+          <h1 class="palace-title">PALACE & RESIDENCES</h1>
+          <div class="delicate-divider">
+            <span class="d-line"></span>
+            <span class="d-gem">✦</span>
+            <span class="d-line"></span>
+          </div>
+          <p class="palace-sub">Front Desk & Hotel Lodge POS Terminal</p>
+        </div>
+
+        <form id="login-form" class="login-form">
+          <div class="input-field-group">
+            <label for="login-name">Concierge / Attendant Name</label>
+            <input type="text" id="login-name" class="palace-input" value="Vikramaditya Rao" placeholder="Enter staff name..." required />
+          </div>
+
+          <div class="input-field-group">
+            <label for="login-pass">Security Access Key / PIN</label>
+            <input type="password" id="login-pass" class="palace-input" value="1234" placeholder="Enter PIN..." required />
+          </div>
+
+          <button type="submit" class="btn-palace-primary" id="btn-login-submit">
+            <span>ENTER POS TERMINAL</span>
+            <span class="arrow">→</span>
+          </button>
+
+          <button type="button" class="btn-palace-ghost" id="btn-quick-demo">
+            ⚡ Quick Demo Sign-In (1 Click)
+          </button>
+        </form>
+
+        <div class="login-footer-quote">
+          <span class="script-tag">“Atithi Devo Bhava”</span>
+          <p>Inspired by The Leela Palace & Bespoke Grand Hospitality</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. MAIN POS APP (UNCLUTTERED) ================= -->
+  <div id="pos-app" class="pos-app" style="display: none;">
+    
+    <!-- Top Palace Navigation Bar -->
+    <header class="pos-header">
+      <div class="header-left">
+        <div class="header-brand">
+          <span class="brand-script">Xenon</span>
+          <span class="brand-sub-badge">PALACE POS</span>
+        </div>
+        <div class="header-meta-divider"></div>
+        <div class="attendant-info">
+          <span class="attendant-label">CONCIERGE ON DUTY</span>
+          <span class="attendant-name" id="display-attendant-name">Vikramaditya Rao</span>
+        </div>
+      </div>
+
+      <!-- Center Mode Switcher Tabs -->
+      <nav class="pos-mode-nav">
+        <button class="mode-tab active" data-view="suites">
+          <span class="tab-icon">🏨</span>
+          <span>SUITES & RESIDENCES</span>
+        </button>
+        <button class="mode-tab" data-view="dining">
+          <span class="tab-icon">🍽️</span>
+          <span>IN-SUITE DINING & BAR</span>
+        </button>
+        <button class="mode-tab" data-view="ledger">
+          <span class="tab-icon">📜</span>
+          <span>STAY LEDGER</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-right">
+        <div class="estate-clock" id="estate-clock">--:--:--</div>
+        <button class="btn-gold-sm" id="btn-header-checkin">
+          <span>+ REGISTER GUEST</span>
+        </button>
+        <button class="btn-logout" id="btn-logout" title="Log Out of POS">
+          <span>Exit POS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Stats Ribbon (Subtle & Dignified) -->
+    <div class="quick-status-strip">
+      <div class="qs-item">
+        <span class="qs-label">ESTATE CAPACITY</span>
+        <span class="qs-val" id="qs-total-rooms">8 Suites</span>
+      </div>
+      <div class="qs-item">
+        <span class="qs-label">IN-HOUSE GUESTS</span>
+        <span class="qs-val highlight-gold" id="qs-occupied">2 In-House (3 Guests)</span>
+      </div>
+      <div class="qs-item">
+        <span class="qs-label">AVAILABLE (READY)</span>
+        <span class="qs-val highlight-green" id="qs-vacant">4 Suites Ready</span>
+      </div>
+      <div class="qs-item">
+        <span class="qs-label">TURNOVER / CLEANING</span>
+        <span class="qs-val highlight-purple" id="qs-cleaning">1 In Cleaning</span>
+      </div>
+      <div class="qs-item">
+        <span class="qs-label">LIVE FOLIO ACCRUAL</span>
+        <span class="qs-val" id="qs-revenue">₹4,57,000</span>
+      </div>
+    </div>
+
+    <!-- Main Workspace Split Screen -->
+    <div class="pos-layout">
+
+      <!-- ================= LEFT: MAIN WORKSPACE ================= -->
+      <main class="pos-main-panel">
+
+        <!-- VIEW 1: SUITES & STAYS -->
+        <section id="view-suites" class="pos-view active">
+          <div class="view-toolbar">
+            <div class="toolbar-title-box">
+              <h2 class="view-title">Suites & Private Residences</h2>
+              <p class="view-subtitle">Live occupancy, in-house guest folios, and instant check-out management.</p>
+            </div>
+            
+            <div class="toolbar-actions">
+              <!-- Filter pills -->
+              <div class="filter-pill-wrap">
+                <button class="filter-pill active" data-filter="all">All (8)</button>
+                <button class="filter-pill" data-filter="occupied">Occupied</button>
+                <button class="filter-pill" data-filter="vacant">Available</button>
+                <button class="filter-pill" data-filter="cleaning">Turnover</button>
+              </div>
+              <input type="text" id="suite-search" class="palace-search" placeholder="Search suite, wing or guest..." />
+            </div>
+          </div>
+
+          <!-- Suites Grid -->
+          <div class="suites-card-grid" id="suites-card-grid">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 2: IN-SUITE DINING & BAR POS -->
+        <section id="view-dining" class="pos-view" style="display: none;">
+          <div class="view-toolbar">
+            <div class="toolbar-title-box">
+              <h2 class="view-title">In-Suite Dining & Beverage Portfolio</h2>
+              <p class="view-subtitle">Select items to populate the Hotel Guest Check on the right, then 1-click charge to the guest's suite folio.</p>
+            </div>
+
+            <div class="toolbar-actions">
+              <div class="filter-pill-wrap" id="menu-category-pills">
+                <button class="filter-pill active" data-category="all">All Offerings</button>
+                <button class="filter-pill" data-category="Dining & Wine">Dining & Wine</button>
+                <button class="filter-pill" data-category="Spa & Wellness">Spa & Wellness</button>
+                <button class="filter-pill" data-category="Concierge & Transport">Concierge</button>
+                <button class="filter-pill" data-category="Suite Amenities">In-Suite Bar</button>
+                <button class="filter-pill" data-category="Valet & Laundry">Valet</button>
+              </div>
+              <input type="text" id="menu-search" class="palace-search" placeholder="Search menu..." />
+            </div>
+          </div>
+
+          <!-- Menu Catalog Grid -->
+          <div class="menu-items-grid" id="menu-items-grid">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 3: STAY LEDGER & AUDIT ARCHIVE -->
+        <section id="view-ledger" class="pos-view" style="display: none;">
+          <div class="view-toolbar">
+            <div class="toolbar-title-box">
+              <h2 class="view-title">Palace Stay Ledger & Folio Archive</h2>
+              <p class="view-subtitle">Permanent audit log of stays, guest registrations, and finalized accounts.</p>
+            </div>
+            <div class="toolbar-actions">
+              <input type="text" id="ledger-search" class="palace-search" placeholder="Search by guest name or suite..." />
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="palace-table" id="ledger-table">
+              <thead>
+                <tr>
+                  <th>FOLIO REF</th>
+                  <th>SUITE</th>
+                  <th>DISTINGUISHED GUEST</th>
+                  <th>VIP STANDING</th>
+                  <th>CHECK-IN</th>
+                  <th>CHECK-OUT</th>
+                  <th style="text-align: right;">TARIFF / NT</th>
+                  <th style="text-align: right;">TOTAL BILLED</th>
+                  <th>STATUS</th>
+                  <th style="text-align: center;">FOLIO INVOICE</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ================= RIGHT: HOTEL GUEST CHECK / TICKET ================= -->
+      <aside class="pos-ticket-sidebar">
+        <div class="ticket-wrapper">
+          
+          <!-- Ticket Header -->
+          <div class="ticket-header">
+            <div class="ticket-brand">
+              <span class="ticket-script">The Leela & Xenon</span>
+              <span class="ticket-type">GUEST CHECK & ROOM TICKET</span>
+            </div>
+            <div class="ticket-num" id="ticket-number">#CHK-8812</div>
+          </div>
+
+          <!-- Suite Destination Picker -->
+          <div class="ticket-room-target">
+            <label for="ticket-suite-select">Charge Destination Suite:</label>
+            <select id="ticket-suite-select" class="palace-select">
+              <option value="">Select Suite or Walk-In Bar...</option>
+              <!-- Populated dynamically -->
+            </select>
+
+            <!-- Dynamic Room In-House Info Strip -->
+            <div id="ticket-room-info" class="ticket-room-info" style="display: none;">
+              <div class="tri-guest-line">
+                <span class="tri-guest" id="tri-guest-name">—</span>
+                <span class="tri-badge" id="tri-vip-badge">—</span>
+              </div>
+              <div class="tri-folio-line">
+                <span>Current Folio Balance:</span>
+                <strong id="tri-folio-due">₹0</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Line Items -->
+          <div class="ticket-lines-container">
+            <div class="ticket-lines-header">
+              <span>ITEM</span>
+              <span>QTY</span>
+              <span style="text-align: right;">AMOUNT</span>
+            </div>
+
+            <div class="ticket-lines-list" id="ticket-lines-list">
+              <!-- Empty state default -->
+              <div class="ticket-empty-state">
+                <p>No dining or service items on this check yet.</p>
+                <small>Select items from "In-Suite Dining & Bar" or click "+ Order" on any occupied suite.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ticket Financial Totals -->
+          <div class="ticket-totals">
+            <div class="tot-line">
+              <span>Subtotal:</span>
+              <span id="ticket-subtotal" class="tabular">₹0</span>
+            </div>
+            <div class="tot-line">
+              <span>Luxury Hospitality GST (12%):</span>
+              <span id="ticket-tax" class="tabular">₹0</span>
+            </div>
+            <div class="tot-line grand">
+              <span>TOTAL ORDER:</span>
+              <span id="ticket-total" class="tabular">₹0</span>
+            </div>
+          </div>
+
+          <!-- Primary POS Actions -->
+          <div class="ticket-actions">
+            <button class="btn-palace-primary" id="btn-charge-to-room" disabled>
+              <span>🍷 CHARGE TO SUITE FOLIO</span>
+            </button>
+
+            <div class="secondary-actions-row">
+              <button class="btn-palace-secondary" id="btn-direct-settle" disabled>
+                <span>Direct Settle (Cash/Card)</span>
+              </button>
+              <button class="btn-palace-ghost sm" id="btn-clear-ticket">
+                Clear
+              </button>
+            </div>
+
+            <!-- Dynamic Checkout Trigger for Active Suite -->
+            <button class="btn-checkout-suite" id="btn-sidebar-checkout" style="display: none;">
+              <span>🏁 Check-Out & Finalize Suite Folio →</span>
+            </button>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal 1: Clean Registration (Check-In) -->
+  <div class="palace-modal-backdrop" id="modal-checkin">
+    <div class="palace-modal" role="dialog" aria-modal="true">
+      <div class="palace-modal-head">
+        <div>
+          <span class="modal-script">Atithi Satkar</span>
+          <h3 class="modal-h3" id="checkin-modal-title">Register Distinguished Guest</h3>
+        </div>
+        <button class="modal-close" data-close="modal-checkin">✕</button>
+      </div>
+
+      <form id="form-checkin" class="modal-body-form">
+        <div class="form-grid two-col">
+          <div class="field-item">
+            <label for="ci-suite">Select Residence / Suite *</label>
+            <select id="ci-suite" class="palace-select" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="field-item">
+            <label for="ci-vip">VIP Membership Standing</label>
+            <select id="ci-vip" class="palace-select">
+              <option value="Black Diamond VIP">✦ Black Diamond Royal VIP</option>
+              <option value="Gold VIP" selected>✦ Gold Club Resident</option>
+              <option value="Silver Member">✦ Silver Member</option>
+              <option value="Standard Guest">Standard Guest</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid two-col">
+          <div class="field-item">
+            <label for="ci-name">Guest Full Name *</label>
+            <input type="text" id="ci-name" class="palace-input" placeholder="e.g. Maharani Gayatri Devi" required />
+          </div>
+          <div class="field-item">
+            <label for="ci-phone">Telephone / Mobile</label>
+            <input type="tel" id="ci-phone" class="palace-input" placeholder="+91 98200 12345" />
+          </div>
+        </div>
+
+        <div class="form-grid two-col">
+          <div class="field-item">
+            <label for="ci-id-type">Identity Proof</label>
+            <select id="ci-id-type" class="palace-select">
+              <option value="Passport" selected>Passport</option>
+              <option value="Aadhaar Card">Aadhaar Card</option>
+              <option value="Diplomatic ID">Diplomatic ID</option>
+              <option value="Driving License">Driving License</option>
+            </select>
+          </div>
+          <div class="field-item">
+            <label for="ci-id-num">Document Number</label>
+            <input type="text" id="ci-id-num" class="palace-input" placeholder="Z8920194" />
+          </div>
+        </div>
+
+        <div class="form-grid three-col">
+          <div class="field-item">
+            <label for="ci-nights">Stay Duration</label>
+            <select id="ci-nights" class="palace-select">
+              <option value="1">1 Night</option>
+              <option value="2">2 Nights</option>
+              <option value="3" selected>3 Nights</option>
+              <option value="5">5 Nights</option>
+              <option value="7">1 Week</option>
+              <option value="14">Fortnight</option>
+            </select>
+          </div>
+          <div class="field-item">
+            <label for="ci-rate">Agreed Nightly Rate (₹)</label>
+            <input type="number" id="ci-rate" class="palace-input" placeholder="Standard Tariff" />
+          </div>
+          <div class="field-item">
+            <label for="ci-advance">Advance Deposit (₹)</label>
+            <input type="number" id="ci-advance" class="palace-input" value="0" />
+          </div>
+        </div>
+
+        <div class="field-item">
+          <label for="ci-notes">Butler Directives & Personal Preferences</label>
+          <input type="text" id="ci-notes" class="palace-input" placeholder="Fragrant jasmine welcome, vintage tea preferences, late checkout..." />
+        </div>
+
+        <div class="modal-footer-actions">
+          <button type="button" class="btn-palace-ghost" data-close="modal-checkin">Cancel</button>
+          <button type="submit" class="btn-palace-primary">
+            <span>CONFIRM CHECK-IN & ISSUE KEYS</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Check-Out Folio & Settle Bill -->
+  <div class="palace-modal-backdrop" id="modal-checkout">
+    <div class="palace-modal wide" role="dialog" aria-modal="true">
+      <div class="palace-modal-head">
+        <div>
+          <span class="modal-script">The Leela & Xenon</span>
+          <h3 class="modal-h3" id="co-modal-title">Suite Folio Statement & Check-Out</h3>
+        </div>
+        <button class="modal-close" data-close="modal-checkout">✕</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Guest Overview Card -->
+        <div class="co-guest-banner">
+          <div>
+            <h4 class="co-guest-name" id="co-guest-name">—</h4>
+            <p class="co-guest-meta" id="co-guest-meta">—</p>
+          </div>
+          <div class="co-due-box">
+            <span class="co-due-label">NET BALANCE OUTSTANDING</span>
+            <span class="co-due-val" id="co-net-due-display">₹0</span>
+          </div>
+        </div>
+
+        <!-- Itemized Table -->
+        <div class="co-table-wrap">
+          <table class="palace-table compact">
+            <thead>
+              <tr>
+                <th>PARTICULARS</th>
+                <th>CATEGORY</th>
+                <th>POSTED TIME</th>
+                <th style="text-align: right;">AMOUNT (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="co-items-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Adjustments Form -->
+        <form id="form-checkout" class="co-settle-form">
+          <input type="hidden" id="co-stay-id" />
+
+          <div class="form-grid three-col">
+            <div class="field-item">
+              <label for="co-damage">Property Assessment / Extras (₹)</label>
+              <input type="number" id="co-damage" class="palace-input" value="0" min="0" />
+            </div>
+            <div class="field-item">
+              <label for="co-discount">Royal Courtesy / VIP Discount (₹)</label>
+              <input type="number" id="co-discount" class="palace-input" value="0" min="0" />
+            </div>
+            <div class="field-item">
+              <label>Settlement Tender</label>
+              <select class="palace-select" id="co-method">
+                <option value="Amex Centurion">Amex Centurion / Black Card</option>
+                <option value="Visa Infinite">Visa Infinite Card</option>
+                <option value="Bank Wire">Private Bank Wire</option>
+                <option value="Cash">Cash Currency</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="co-calc-strip">
+            <div class="calc-row"><span>Accommodation Total:</span> <span id="co-sum-room">₹0</span></div>
+            <div class="calc-row"><span>Dining & Concierge:</span> <span id="co-sum-folio">+₹0</span></div>
+            <div class="calc-row green"><span>Advance Tender Deducted:</span> <span id="co-sum-advance">−₹0</span></div>
+            <div class="calc-row grand"><span>FINAL SETTLEMENT PAYABLE:</span> <span id="co-sum-final">₹0</span></div>
+          </div>
+
+          <div class="modal-footer-actions between">
+            <button type="button" class="btn-palace-secondary" id="btn-print-bill">
+              <span>🖨️ Generate Palace Invoice</span>
+            </button>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="btn-palace-ghost" data-close="modal-checkout">Cancel</button>
+              <button type="submit" class="btn-palace-primary">
+                <span>FINALIZE & DISCHARGE SUITE ✓</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Printable Palace Invoice Stationery -->
+  <div class="palace-modal-backdrop" id="modal-invoice">
+    <div class="palace-modal invoice-modal" role="dialog" aria-modal="true">
+      <div class="invoice-toolbar no-print">
+        <button class="btn-palace-primary sm" onclick="window.print()">
+          <span>🖨️ PRINT / SAVE AS PDF</span>
+        </button>
+        <button class="modal-close" data-close="modal-invoice">✕</button>
+      </div>
+
+      <div class="invoice-sheet" id="invoice-sheet">
+        <div class="inv-head">
+          <div class="inv-brand-box">
+            <span class="inv-script">The Leela & Xenon</span>
+            <div class="inv-title">PALACE & RESIDENCES</div>
+            <div class="inv-address">Palace Enclave, Lake Pichola · Rajasthan · Tel: +91 294 670 1234</div>
+          </div>
+          <div class="inv-meta-box">
+            <div class="inv-folio-tag">OFFICIAL GUEST STATEMENT</div>
+            <div><span>Folio:</span> <b id="inv-folio-ref">—</b></div>
+            <div><span>Date:</span> <b id="inv-date">—</b></div>
+            <div><span>Residence:</span> <b id="inv-room">—</b></div>
+          </div>
+        </div>
+
+        <div class="inv-divider-line"></div>
+
+        <div class="inv-guest-grid">
+          <div>
+            <span class="inv-small-tag">DISTINGUISHED RESIDENT</span>
+            <div class="inv-guest-title" id="inv-guest">—</div>
+            <div class="inv-guest-phone" id="inv-contact">—</div>
+            <div class="inv-guest-vip" id="inv-vip">—</div>
+          </div>
+          <div style="text-align: right;">
+            <span class="inv-small-tag">STAY SCHEDULE</span>
+            <div>Check-In: <b id="inv-in">—</b></div>
+            <div>Check-Out: <b id="inv-out">—</b></div>
+            <div>Nights: <b id="inv-nights">—</b></div>
+          </div>
+        </div>
+
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>PARTICULARS</th>
+              <th>CLASSIFICATION</th>
+              <th style="text-align: right;">AMOUNT (INR)</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody">
+            <!-- Dynamically populated -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">TOTAL CHARGES</td>
+              <td style="text-align: right;" id="inv-gross" class="tabular">₹0</td>
+            </tr>
+            <tr>
+              <td colspan="2">LESS: ADVANCE DEPOSIT RECEIVED</td>
+              <td style="text-align: right;" id="inv-advance" class="tabular">−₹0</td>
+            </tr>
+            <tr class="inv-total-line">
+              <td colspan="2">NET AMOUNT SETTLED</td>
+              <td style="text-align: right;" id="inv-net" class="tabular">₹0</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="inv-signatures">
+          <div class="inv-sig">
+            <div class="sig-line"></div>
+            <span>Guest Signature</span>
+          </div>
+          <div class="inv-seal">
+            <span>ROYAL VERIFIED</span>
+          </div>
+          <div class="inv-sig">
+            <div class="sig-line"></div>
+            <span>General Manager, Xenon Palace</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
